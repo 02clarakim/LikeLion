@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인페이지</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        * {
+            font-family: 'Hi Melody', cursive;
+        }
+
+        body {
+            background-color: rgb(126, 38, 38);
+        }
+
+        .tiny {
+            font-size: 15px;
+            margin-left: 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+            text-align: left;
+        }
+
+        input {
+            width: 250px;
+        }
+
+        .order {
+            padding-top: 10px;
+            text-align: center;
+        }
+
+        .coloring {
+            color:blanchedalmond;
+            font-weight: bold;
+        }
+
+        .wrap {
+            margin: 0px auto;
+            width: 400px;
+            color: white;
+        }
+    </style>
+
+    <script>
+        function notif() {
+            let name = $('#name').val()
+            let name_l = $('#name_l').text().split(':')[0]
+            let address = $('#address').val()
+            let add_l = $('#add_l').text().split(':')[0]
+            let amount = $("#amount").val()
+            let am_l = $("#am_l").text().split(':')[0]
+            let phone = $('#phone').val()
+            let phone_l = $('#phone_l').text().split(':')[0]
+            list = [name, address, amount, phone]
+            list2 = [name_l, add_l, am_l, phone_l]
+            let no_input = ''
+            for (let i = 0; i < list.length; i++) {
+                if (list[i] == '') {
+                    no_input += list2[i] + ", ";
+                }
+            }
+            no_input = no_input.slice(0, -2)
+            if (no_input == '') {
+                alert('주문이 완료되었습니다.');
+            } else {
+                alert(no_input + ' 을(를) 입력해주세요.')
+            }
+        }
+
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (response) {
+                    money = response[1]["rate"]
+                    $('#rate').append(" "+money);
+                    
+                },
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class='wrap'>
+        <div class="photo">
+            <img src="https://wallpapercave.com/wp/wp7859545.jpg" width=400px height=300px; />
+        </div>
+        <div class="description">
+            <h1>크리스마스 엽서 <span class="tiny">가격: 5,000원/장</span></h1>
+            <h3 id='rate' class="coloring">달러-원 환율:</h3>
+            <p>행복한 연말에 당신이 사랑하는 사람에게 선물 하세요. 맞아요. <br>
+                크리스마스는 D-5, 새해는 D-12. 서두르세요.
+            </p>
+        </div>
+        <div class="container">
+            <p>
+                <label id="name_l">주문자 성함:</label><input id="name" type="text" />
+            </p>
+            <p>
+                <label id="add_l">주소:</label><input id="address" type="text" />
+            </p>
+            <p>
+                <label id="am_l">수량:</label><select id="amount" name="soolyang"
+                    style="text-align: center; width: 258px; height: 22.8px">
+                    <option value="">-- 수량을 선택하세요 --</option>
+                    <option value="1장">1장</option>
+                    <option value="2장">2장</option>
+                    <option value="3장">3장</option>
+                    <option value="4장">4장</option>
+                    <option value="5장">5장</option>
+                </select>
+            </p>
+            <p>
+                <label id="phone_l">전화번호:</label><input id="phone" type="text" />
+            </p>
+        </div>
+        <div class="order">
+            <button onclick='notif()' type="button" class="btn btn-light">주문하기</button>
+        </div>
+        </p>
+    </div>
+
+</body>
+
+</html>
