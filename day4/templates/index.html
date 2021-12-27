@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            font-family: 'Hi Melody', cursive;
+        }
+
+        body {
+            background-color: rgb(126, 38, 38);
+            background-image: url('https://pa1.narvii.com/7591/160598868a4a527fd055fa88df96b2000a763877r1-400-225_hq.gif');
+        }
+
+        .tiny {
+            font-size: 15px;
+            margin-left: 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+            text-align: left;
+        }
+
+        input {
+            width: 250px;
+        }
+
+        .sizing {
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .order {
+            padding-top: 10px;
+            text-align: center;
+        }
+        .description {
+            margin-bottom: 20px;
+        }
+        .orders {
+            margin-top: 30px;
+        }
+
+        .coloring {
+            color: blanchedalmond;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        
+        .wrap {
+            margin: 0px auto;
+            width: 400px;
+            color: white;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('#orders-box').html('');
+            listing();
+            $.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (response) {
+                    let money = response[1]["rate"]
+                    $('#rate').append(" " + money);
+                }
+            })
+        });
+
+        function notif() {
+            let name = $('#name').val();
+            let name_l = $('#name_l').text().split(':')[0];
+            let address = $('#address').val();
+            let add_l = $('#add_l').text().split(':')[0];
+            let amount = $("#amount").val();
+            let am_l = $("#am_l").text().split(':')[0];
+            let phone = $('#phone').val();
+            let phone_l = $('#phone_l').text().split(':')[0];
+            list = [name, address, amount, phone];
+            list2 = [name_l, add_l, am_l, phone_l];
+            let no_input = '';
+            for (let i = 0; i < list.length; i++) {
+                if (list[i] == '') {
+                    no_input += list2[i] + ", ";
+                }
+            }
+            no_input = no_input.slice(0, -2);
+            last = no_input[no_input.length - 1];
+            var re = new RegExp('^([0-9]{3})[-][0-9]{3}([0-9])?[-]([0-9]{4})$');
+
+            if ((no_input == '') && (!(re.test(phone)))) {
+                alert('전화번호를 000-000-0000 형식으로 입력해주세요.');
+                return;
+            } else if (last == '소' || last == '호') {
+                alert(no_input + '를 입력해주세요.');
+                return;
+            } else if (last == '량' || last == '름') {
+                alert(no_input + '을 입력해주세요.');
+                return;
+            }
+
+            $.ajax({
+                type: 'POST', // 타입을 작성합니다.
+                url: '/customers', // url을 작성합니다.
+                data: {'name_give': name, 'address_give': address, 'amount_give': amount, 'phone_give': phone}, // data를 작성합니다. },
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        alert(response['msg']);
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/customers",
+                data: {},
+                success: function (response) {
+                    if (response['result'] == 'success') {
+                        let customers = response['customers'];
+                        for (let i = 0; i < customers.length; i++) {
+                            make_card(customers[i]['name'], customers[i]['address'], customers[i]['amount'], customers[i]['phone']);
+                        }
+                    } else {
+                        alert('주문내역을 받아오지 못했습니다');
+                    }
+                }
+            });
+        }
+
+        function make_card(name, address, amount, phone) {
+            let temp_html = `<tr>
+                        <td>${name}</td>
+                        <td>${address}</td>
+                        <td>${amount}</td>
+                        <td>${phone}</td>
+                    </tr>`;
+            $('#orders-box').append(temp_html);
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class='wrap'>
+        <div class="photo">
+            <img src="https://wallpapercave.com/wp/wp7859545.jpg" width=400px height=300px; />
+        </div>
+        <div class="description">
+            <h2 class="sizing">크리스마스 엽서 <span class="tiny">가격: 5,000원/장</span></h3>
+            <h5 id='rate' class="coloring">달러-원 환율:</h5>
+            <p>행복한 연말에 당신이 사랑하는 사람에게 선물 하세요. 
+            </p>
+        </div>
+        <div class="container">
+            <p>
+                <label id="name_l">주문자 성함:</label><input id="name" type="text" style="width: 258px; height: 22.8px"/>
+            </p>
+            <p>
+                <label id="add_l">주소:</label><input id="address" type="text" style="width: 258px; height: 22.8px"/>
+            </p>
+            <p>
+                <label id="am_l">수량:</label><select id="amount" name="soolyang"
+                    style="text-align: center; width: 258px; height: 22.8px">
+                    <option value="">-- 수량을 선택하세요 --</option>
+                    <option value="1장">1장</option>
+                    <option value="2장">2장</option>
+                    <option value="3장">3장</option>
+                    <option value="4장">4장</option>
+                    <option value="5장">5장</option>
+                </select>
+            </p>
+            <p>
+                <label id="phone_l">전화번호:</label><input id="phone" type="text" style="width: 258px; height: 22.8px"/>
+            </p>
+        </div>
+        <div class="order">
+            <button onclick="notif()" type="submit" class="btn btn-light">주문하기</button>
+        </div>
+
+        <div class="orders">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">성함</th>
+                        <th scope="col">수량</th>
+                        <th scope="col">주소</th>
+                        <th scope="col">전화번호</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-box">
+                    <tr>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                        <td>@mdo</td>
+                        <td>@mdo</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+
+</html>
